@@ -4,7 +4,7 @@ import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import com.goodee.corpdesk.chat.service.ChatRoomService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -24,6 +24,8 @@ import com.goodee.corpdesk.chat.service.ChatMessageService;
 @RequestMapping("/chat/message/**")
 public class ChatMessageController {
 
+    private final ChatRoomService chatRoomService;
+
 	
 	@Autowired
 	// Spring에서 서버가 클라이언트(STOMP 구독자)에게 메시지를 푸시하기 위해 제공하는 템플릿 객체
@@ -34,16 +36,32 @@ public class ChatMessageController {
 	@Autowired
 	private ChatSessionTracker chatSessionTracker;
 
+    ChatMessageController(ChatRoomService chatRoomService) {
+        this.chatRoomService = chatRoomService;
+    }
+
 	// websocket 요청에 대한 매핑 위의 requestMapping과 관련없고 websocket config에서 지정해준 prefix 사용
 	@MessageMapping("/chat/message")
 	public void chatsendMessage(ChatMessage msg) {
 		chatMessageService.messageSave(msg);
 		msg.setNotificationType("message");
+		String chatRoomType =chatRoomService.getChatRoomType(msg.getChatRoomId());
 		messagingTemplate.convertAndSend("/sub/chat/room/" + msg.getChatRoomId(), msg);
 		
 		//채팅방의 모든 개인 구독 알림 전송
-		
-		List<ChatParticipant> list = chatMessageService.participantListByRoom(msg.getChatRoomId());
+		List<ChatParticipant> list;
+		//개인 채팅일경우
+		if(chatRoomType.equals("direct")) {
+			
+			list = chatMessageService.participantOnetoOneByRoom(msg.getChatRoomId());
+			
+			
+		}
+		//그룹채팅일경우
+		else {
+			
+			list = chatMessageService.participantListByRoom(msg.getChatRoomId());
+		}
 		list.forEach(l->{
 			String username =l.getEmployeeUsername();
 			Long chatRoomId = l.getChatRoomId();

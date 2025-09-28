@@ -14,7 +14,7 @@ public interface ChatRoomRepository extends  JpaRepository<ChatRoom, Long> {
 
 	@Query("SELECT r FROM ChatRoom r JOIN ChatParticipant p "+
 			"ON r.chatRoomId = p.chatRoomId "+
-			"WHERE p.employeeUsername = :username")
+			"WHERE p.employeeUsername = :username And p.useYn = true")
 	List<ChatRoom> findAllByUsername(@Param("username") String username);
 	
 	//다른사람과 있는 1대1 채팅
@@ -31,6 +31,8 @@ public interface ChatRoomRepository extends  JpaRepository<ChatRoom, Long> {
 			"GROUP BY r.chatRoomId "+
 			"HAVING COUNT(p) = 1 AND SUM(CASE WHEN p.employeeUsername = :username THEN 1 ELSE 0 END) = 1")
 	Optional<ChatRoom> findDuplicatedRoomOwn(@Param("username") String username);
+
+	Optional<ChatRoom> findByChatRoomId(Long chatRoomId);
 
 	
 	

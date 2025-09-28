@@ -95,4 +95,10 @@ public class ChatRoomController {
 
 		return chatRoom;
 	}
+	@GetMapping("out/{roomId}")
+	@ResponseBody
+	public boolean chatRoomOut(@PathVariable(value = "roomId") Long roomId,Principal principal) {
+		boolean result = chatRoomService.outRoom(roomId,principal);
+		return result;
+	}
 }

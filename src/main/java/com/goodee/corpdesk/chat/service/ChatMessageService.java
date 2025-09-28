@@ -22,12 +22,24 @@ public class ChatMessageService {
 	private ChatParticipantRepository chatParticipantRepository;
 	
 	public void messageSave(ChatMessage msg) {
+		msg.setUseYn(true);
 		chatMessageRepository.save(msg);
 		
 	}
 	
 	public List<ChatParticipant> participantListByRoom(Long RoomId){
-		return chatParticipantRepository.findAllByChatRoomId(RoomId);
+		return chatParticipantRepository.findAllByChatRoomIdAndUseYnTrue(RoomId);
+	}
+	public List<ChatParticipant> participantOnetoOneByRoom(Long RoomId){
+		List<ChatParticipant> list = chatParticipantRepository.findAllByChatRoomId(RoomId);
+		
+		list.forEach(l->{
+			if(!l.getUseYn()) {
+				chatParticipantRepository.updateRoomUseYnTrue(l.getEmployeeUsername(), RoomId);
+				//구독 알림을 보냄
+			}
+		});
+		return list;
 	}
 
 	//방번호로 해당 방의 메세지를 조회해옴

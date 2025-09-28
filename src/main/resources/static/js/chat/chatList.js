@@ -1,10 +1,10 @@
 const socket = new SockJS("/ws");
 stompClient = Stomp.over(socket);
-const lastMsgTime= document.querySelectorAll(".last-msg-time");
-lastMsgTime.forEach(t=>{
-	
-	
-	t.textContent=timeformat(t.getAttribute("data-lastMessageTime"));
+const lastMsgTime = document.querySelectorAll(".last-msg-time");
+lastMsgTime.forEach(t => {
+
+
+	t.textContent = timeformat(t.getAttribute("data-lastMessageTime"));
 })
 function createLi(chatRoom) {
 	// 새로운 li만들어서 화면에 삽입
@@ -16,7 +16,10 @@ function createLi(chatRoom) {
 	newli.className = "mb-4 px-5 py-2 chatListOne";
 	newli.setAttribute("data-roomId", chatRoom.chatRoomId);
 	newli.setAttribute("data-unreadCount", 0);
-	newli.addEventListener("dblclick", () => {
+	newli.addEventListener("dblclick", (e) => {
+		if (e.target.classList.contains("kebab-menu")) {
+			return;
+		}
 		const pop = window.open("/chat/room/detail/" + chatRoom.chatRoomId, "room_no_" + chatRoom.chatRoomId, "width=500,height=600 ,left=600, top=100");
 		if (pop) {
 			pop.focus();
@@ -78,7 +81,39 @@ function createLi(chatRoom) {
 
 	rightSpan.appendChild(stateSpan);
 
+	// dropdown-item
+	// kebab-menu div
+	const kebabDiv = document.createElement("div");
+	kebabDiv.className = "dropdown kebab-menu";
+	kebabDiv.style.marginLeft = "10px";
+
+	// a 태그 (토글 버튼)
+	const toggleA = document.createElement("a");
+	toggleA.className = "dropdown-toggle icon-burger-mini kebab-menu";
+	toggleA.href = "#";
+	toggleA.setAttribute("role", "button");
+	toggleA.setAttribute("id", "dropdownMenuLink");
+	toggleA.setAttribute("data-toggle", "dropdown");
+	toggleA.setAttribute("aria-haspopup", "true");
+	toggleA.setAttribute("aria-expanded", "false");
+
+	// dropdown-menu div
+	const menuDiv = document.createElement("div");
+	menuDiv.className = "dropdown-menu dropdown-menu-right";
+	menuDiv.setAttribute("aria-labelledby", "dropdownMenuLink");
+
+	// dropdown-item a
+	const leaveA = document.createElement("a");
+	leaveA.className = "dropdown-item room-out";
+	leaveA.href = "javascript:void(0)";
+	leaveA.textContent = "채팅방 나가기";
+	
+
 	// 조립
+	menuDiv.appendChild(leaveA);
+	kebabDiv.appendChild(toggleA);
+	kebabDiv.appendChild(menuDiv);
+
 	topSpan.appendChild(usernameSpan);
 	topSpan.appendChild(rightSpan);
 
@@ -91,36 +126,39 @@ function createLi(chatRoom) {
 
 	a.appendChild(divImg);
 	a.appendChild(mediaBody);
+	a.appendChild(kebabDiv);
 	newli.appendChild(a);
-
 	// 최종적으로 ul.chatList에 붙이기
 	chatList.appendChild(newli);
 }
-function timeformat(lastMessagTime){
-	msgTime = new Date(lastMessagTime.substring(0,23));
-	const nowTime = new Date();
-	
-	//차이를 하루 단위로 저장
-	const diffDay = (nowTime.getTime()-msgTime.getTime())/(1000*60*60*24);
-	
-	if(diffDay<1){
-		
-	const hour =msgTime.getHours();
-	const minute = msgTime.getMinutes();
-	const ampm = hour>12 ? "오후" : "오전";
-	const displayHour = hour % 12 === 0 ? 12 : hour % 12;
-		
-		return ampm+" "+displayHour+":"+minute.toString().padStart(2,"0");
-	}else if(diffDay<2){
-		return "어제";
-	}else{
-		const year = date.getFullYear();
-		const month = String(date.getMonth() + 1).padStart(2, "0"); // 월은 0~11
-		const day = String(date.getDate()).padStart(2, "0");
-		return year+"-"+month+"-"+day;
+function timeformat(lastMessageTime) {
+	if (!lastMessageTime || lastMessageTime.trim() === "") {
+		return " ";  // 값이 없으면 그냥 공백 반환
 	}
-	
-		
+	msgTime = new Date(lastMessageTime.substring(0, 23));
+	const nowTime = new Date();
+
+	//차이를 하루 단위로 저장
+	const diffDay = (nowTime.getTime() - msgTime.getTime()) / (1000 * 60 * 60 * 24);
+
+	if (diffDay < 1) {
+
+		const hour = msgTime.getHours();
+		const minute = msgTime.getMinutes();
+		const ampm = hour > 12 ? "오후" : "오전";
+		const displayHour = hour % 12 === 0 ? 12 : hour % 12;
+
+		return ampm + " " + displayHour + ":" + minute.toString().padStart(2, "0");
+	} else if (diffDay < 2) {
+		return "어제";
+	} else {
+		const year = msgTime.getFullYear();
+		const month = String(msgTime.getMonth() + 1).padStart(2, "0"); // 월은 0~11
+		const day = String(msgTime.getDate()).padStart(2, "0");
+		return year + "-" + month + "-" + day;
+	}
+
+
 }
 stompClient.connect({}, function(frame) {
 	// 기본적으로 본인 개인큐 구독 (알림/DM 수신)
@@ -137,30 +175,30 @@ stompClient.connect({}, function(frame) {
 				const unreadCount = chat.querySelector(".unreadCount");
 				const count = parseInt(chat.getAttribute("data-unreadCount"), 10);
 				const lastMsg = chat.querySelector(".last-msg");
-				const lastMsgTime=chat.querySelector(".last-msg-time");
-				
-				
+				const lastMsgTime = chat.querySelector(".last-msg-time");
+
+
 				if (chatRoomId == notification.chatRoomId) {
 					//중복임을 flag로 저장
 					existing = true;
 					if (notification.notificationType == "room") {
-						
+
 					}
 					if (notification.notificationType == "message") {
 						//그 창을 보고 있을때
 						if (notification.focused) {
-							lastMsg.textContent=notification.messageContent;
-							lastMsgTime.textContent=timeformat(notification.sent_at);
-							
+							lastMsg.textContent = notification.messageContent;
+							lastMsgTime.textContent = timeformat(notification.sent_at);
+
 						} else {
-							
+
 							if (count == 0) {
 								unreadCount.className = "badge badge-secondary unreadCount";
 							}
 							unreadCount.textContent = (count + 1);
 							chat.setAttribute("data-unreadCount", count + 1);
-							lastMsg.textContent=notification.messageContent;
-							lastMsgTime.textContent=timeformat(notification.sent_at);
+							lastMsg.textContent = notification.messageContent;
+							lastMsgTime.textContent = timeformat(notification.sent_at);
 						}
 
 
@@ -194,7 +232,8 @@ stompClient.connect({}, function(frame) {
 //1대1 채팅 생성
 const employeeListOne = document.querySelectorAll(".employeeListOne");
 employeeListOne.forEach(list => {
-	list.addEventListener("dblclick", () => {
+	list.addEventListener("dblclick", (e) => {
+
 		const username = [list.getAttribute("data-employee")];
 		const roomdata = {
 			usernames: username,
@@ -222,7 +261,10 @@ employeeListOne.forEach(list => {
 //채팅방 클릭시 해당 채팅방을 띄움 , 동시에 마지막 확인 메세지를 변경
 const chatListOne = document.querySelectorAll(".chatListOne").forEach(list => {
 	const roomId = list.getAttribute('data-roomId');
-	list.addEventListener("dblclick", () => {
+	list.addEventListener("dblclick", (e) => {
+		if (e.target.classList.contains("kebab-menu")) {
+			return;
+		}
 		const pop = window.open("/chat/room/detail/" + roomId, "room_no_" + roomId, "width=500,height=600 ,left=600, top=100");
 		if (pop) {
 			pop.focus();
@@ -230,12 +272,32 @@ const chatListOne = document.querySelectorAll(".chatListOne").forEach(list => {
 		fetch("/chat/participant/lastMessage/" + roomId, {
 			method: "POST"
 		});
-		list.querySelector(".unreadCount").TtextContent ="";
+		list.querySelector(".unreadCount").textContent = "";
 		list.setAttribute("data-unreadCount", 0);
 	})
 
 });
 
+//채팅방 나가기
+document.querySelector(".chatList").addEventListener("click", (e) => {
+  if (e.target.classList.contains("room-out")) {
+    const li = e.target.closest(".chatListOne");
+    const roomId = li.getAttribute("data-roomId");
+	fetch("/chat/room/out/"+roomId,{
+		
+	}).then(res=>res.json())
+	  .then(res=>{
+		if (res) {
+			      console.log("삭제 성공"); 
+			      li.remove();
+			    }
+			else{
+				console.log("삭제 실패"); 
+			}
+	  })
+	
+  }
+});
 
 //그룹 채팅 생성 모달 
 const modal = document.getElementById("createRoomModal");

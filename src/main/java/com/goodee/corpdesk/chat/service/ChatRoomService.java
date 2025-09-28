@@ -133,6 +133,10 @@ public class ChatRoomService {
 				
 				
 				if(!directRoom.isEmpty()) {
+					if(!directRoom.get().getUseYn()) {
+						chatParticipantRepository.updateRoomUseYnTrue(principal.getName(),directRoom.get().getChatRoomId());
+						
+					}
 					return directRoom.get().getChatRoomId();
 				}
 				else {
@@ -150,8 +154,11 @@ public class ChatRoomService {
 			// 상대방이 있는 경우
 			}else {
 				directRoom =chatRoomRepository.findDuplicatedRoom(principal.getName(),usernames.getFirst());
-				
 				if(!directRoom.isEmpty()) {
+					if(!directRoom.get().getUseYn()) {
+						chatParticipantRepository.updateRoomUseYnTrue(principal.getName(),directRoom.get().getChatRoomId());
+						
+					}
 					return directRoom.get().getChatRoomId();
 				}
 				else {
@@ -196,6 +203,24 @@ public class ChatRoomService {
 		
 		return chatroom.getChatRoomId();
 		
+	}
+
+
+
+	public boolean outRoom(Long roomId, Principal principal) {
+		boolean result =false;
+		if(chatParticipantRepository.existsByChatRoomIdAndEmployeeUsernameAndUseYnTrue(roomId, principal.getName())) {
+			chatParticipantRepository.updateRoomUseYnFalse(principal.getName(), roomId);
+			result =true;
+		}
+		return result;
+	}
+
+
+
+	public String getChatRoomType(Long chatRoomId) {
+		ChatRoom chatRoom =chatRoomRepository.findByChatRoomId(chatRoomId).get();
+		return chatRoom.getChatRoomType();
 	}
 
 	

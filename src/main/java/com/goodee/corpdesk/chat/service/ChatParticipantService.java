@@ -20,13 +20,13 @@ public class ChatParticipantService {
 	private ChatMessageRepository chatMessageRepository;
 	
 	public List<ChatParticipant> participantList(Long chatRoomId) {
-		List<ChatParticipant> list = chatParticipantRepository.findAllByChatRoomId(chatRoomId);
+		List<ChatParticipant> list = chatParticipantRepository.findAllByChatRoomIdAndUseYnTrue(chatRoomId);
 		return list;
 	}
 
 	public boolean isRoomParticipant(ChatParticipant chatParticipant) {
 		boolean result = chatParticipantRepository.
-				existsByChatRoomIdAndEmployeeUsername(chatParticipant.getChatRoomId(),chatParticipant.getEmployeeUsername())
+				existsByChatRoomIdAndEmployeeUsernameAndUseYnTrue(chatParticipant.getChatRoomId(),chatParticipant.getEmployeeUsername())
 				;
 		return result;
 	}

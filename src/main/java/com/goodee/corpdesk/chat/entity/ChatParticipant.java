@@ -2,6 +2,8 @@ package com.goodee.corpdesk.chat.entity;
 
 import java.time.LocalDateTime;
 
+import com.goodee.corpdesk.common.BaseEntity;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,16 +18,13 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class ChatParticipant {
+public class ChatParticipant extends BaseEntity{
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long participantId;
 	private String employeeUsername;
 	private Long chatRoomId;
 	private Long lastCheckMessageId;
-	private LocalDateTime updated_at;
-	private LocalDateTime creates_at;
-	private String modifed_by;
-	private boolean use_yn;
+
 	
 }

@@ -83,8 +83,16 @@
 								<p class="last-msg text-smoke">${room.chatRoomLastMessage}</p>
 							</div>
 						</div>
-							<span class="mdi mdi-dots-vertical" style="font-size:32px; margin-left:10px;" ></span>
+							<div class="dropdown kebab-menu" style="margin-left:10px;">
+								<a class="dropdown-toggle icon-burger-mini kebab-menu" href="#"
+									role="button" id="dropdownMenuLink" data-toggle="dropdown"
+									aria-haspopup="true" aria-expanded="false"> </a>
 
+								<div class="dropdown-menu  dropdown-menu-right"
+									aria-labelledby="dropdownMenuLink">
+									<a class="dropdown-item room-out" href="javascript:void(0)">채팅방 나가기</a>
+								</div>
+							</div>
 					</div>
 				</li>
 			</c:forEach>
