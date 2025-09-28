@@ -21,9 +21,9 @@ public class ChatMessageService {
 	@Autowired
 	private ChatParticipantRepository chatParticipantRepository;
 	
-	public void messageSave(ChatMessage msg) {
+	public ChatMessage messageSave(ChatMessage msg) {
 		msg.setUseYn(true);
-		chatMessageRepository.save(msg);
+		return chatMessageRepository.save(msg);
 		
 	}
 	
@@ -36,7 +36,6 @@ public class ChatMessageService {
 		list.forEach(l->{
 			if(!l.getUseYn()) {
 				chatParticipantRepository.updateRoomUseYnTrue(l.getEmployeeUsername(), RoomId);
-				//구독 알림을 보냄
 			}
 		});
 		return list;

@@ -26,7 +26,7 @@ public class ChatParticipantService {
 
 	public boolean isRoomParticipant(ChatParticipant chatParticipant) {
 		boolean result = chatParticipantRepository.
-				existsByChatRoomIdAndEmployeeUsernameAndUseYnTrue(chatParticipant.getChatRoomId(),chatParticipant.getEmployeeUsername())
+				existsByChatRoomIdAndEmployeeUsername(chatParticipant.getChatRoomId(),chatParticipant.getEmployeeUsername())
 				;
 		return result;
 	}

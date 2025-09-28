@@ -119,6 +119,7 @@ public class ChatRoomService {
 	public Long createRoom(RoomData roomdata , Principal principal ) {
 		List<String> usernames = roomdata.getUsernames();
 		ChatRoom chatroom = new ChatRoom();
+		chatroom.setUseYn(true);
 		ChatParticipant chatParticipant = new ChatParticipant();
 		
 		//1대1 채팅방 생성
@@ -126,17 +127,11 @@ public class ChatRoomService {
 			//중복먼저 확인
 			//채팅방 상대랑 , 사용자를 넣고 확인해옴
 			Optional<ChatRoom> directRoom;
-			
 			//대상이 자기 자신인 경우
 			if(usernames.getFirst().equals(principal.getName())) {
 				directRoom = chatRoomRepository.findDuplicatedRoomOwn(principal.getName());
 				
-				
 				if(!directRoom.isEmpty()) {
-					if(!directRoom.get().getUseYn()) {
-						chatParticipantRepository.updateRoomUseYnTrue(principal.getName(),directRoom.get().getChatRoomId());
-						
-					}
 					return directRoom.get().getChatRoomId();
 				}
 				else {
@@ -148,6 +143,7 @@ public class ChatRoomService {
 					chatParticipant = new ChatParticipant();
 					chatParticipant.setChatRoomId(chatroom.getChatRoomId());
 					chatParticipant.setEmployeeUsername(principal.getName());
+					chatParticipant.setUseYn(false);
 					chatParticipantRepository.save(chatParticipant);
 				}
 				
@@ -155,10 +151,7 @@ public class ChatRoomService {
 			}else {
 				directRoom =chatRoomRepository.findDuplicatedRoom(principal.getName(),usernames.getFirst());
 				if(!directRoom.isEmpty()) {
-					if(!directRoom.get().getUseYn()) {
-						chatParticipantRepository.updateRoomUseYnTrue(principal.getName(),directRoom.get().getChatRoomId());
-						
-					}
+					
 					return directRoom.get().getChatRoomId();
 				}
 				else {
@@ -169,11 +162,14 @@ public class ChatRoomService {
 					//상대방 저장
 					chatParticipant.setEmployeeUsername(usernames.getFirst());
 					chatParticipant.setChatRoomId(chatroom.getChatRoomId());
+					chatParticipant.setUseYn(false);
 					chatParticipantRepository.save(chatParticipant);
+					
 					//사용자 저장
 					chatParticipant = new ChatParticipant();
 					chatParticipant.setChatRoomId(chatroom.getChatRoomId());
 					chatParticipant.setEmployeeUsername(principal.getName());
+					chatParticipant.setUseYn(false);
 					chatParticipantRepository.save(chatParticipant);
 				}
 				
@@ -190,12 +186,14 @@ public class ChatRoomService {
 			//사용자 저장
 			chatParticipant.setChatRoomId(chatroom.getChatRoomId());
 			chatParticipant.setEmployeeUsername(principal.getName());
+			chatParticipant.setUseYn(false);
 			chatParticipantRepository.save(chatParticipant);
 			
 			for(String user : roomdata.getUsernames()) {
 				chatParticipant = new ChatParticipant();
 				chatParticipant.setChatRoomId(chatroom.getChatRoomId());
 				chatParticipant.setEmployeeUsername(user);
+				chatParticipant.setUseYn(false);
 				chatParticipantRepository.save(chatParticipant);
 			}
 			
@@ -221,6 +219,19 @@ public class ChatRoomService {
 	public String getChatRoomType(Long chatRoomId) {
 		ChatRoom chatRoom =chatRoomRepository.findByChatRoomId(chatRoomId).get();
 		return chatRoom.getChatRoomType();
+	}
+
+
+
+	public String getRoomTitle(Long chatRoomId) {
+		return chatRoomRepository.findByChatRoomId(chatRoomId).get().getChatRoomTitle();
+		
+	}
+	
+	
+	public Long getRoomUnreadCount(Long chatRoomId) {
+		return chatRoomRepository.findByChatRoomId(chatRoomId).get().getUnreadCount();
+		
 	}
 
 	

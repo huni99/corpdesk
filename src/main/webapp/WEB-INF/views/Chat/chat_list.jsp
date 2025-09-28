@@ -51,9 +51,9 @@
 <!-- 채팅방 목록 -->
 <div class="col-lg-7 col-xxl-5">
 	<div class="card card-default chat-left-sidebar">
-		<ul class="card-body px-0 chatList" data-simplebar style="height: 630px;">
+		<ul class="card-body px-0 list-group chatList" data-simplebar style="height: 630px;">
 			<c:forEach items="${roomList}" var="room">
-				<li class="mb-4 px-5 py-2 chatListOne"
+				<li class="mb-4 px-5 py-2 chatListOne list-group-item-action "
 					data-roomId="${room.chatRoomId }"
 					data-unreadCount="${room.unreadCount }">
 					<div class="media media-message">
@@ -100,23 +100,85 @@
 	</div>
 </div>
 
-<!-- 사원 목록 모달 창 -->
-				<div id="createRoomModal" class="modal" style="display: none;">
-					<div class="modal-content">
-						<span class="close">&times;</span>
-						<h2>채팅방 생성</h2>
-				
-						<label>방 제목</label> <input type="text" id="roomTitle" /> <label>참여자
-							선택</label>
-						<div id="participantList">
-							<!-- 사원 목록을 체크박스로 뿌려줌 -->
-							<label><input type="checkbox" value="wjdrlfgns2"> wjdrlfgns2</label><br />
-							<label><input type="checkbox" value="wjdrlfgns1"> wjdrlfgns1</label><br />
-						</div>
-				
-						<button id="createRoomConfirmBtn">생성</button>
-					</div>
-				</div>
+
+<!-- 채팅방 생성하기 버튼 -->
+<button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#createRoomStep1">
+    채팅방 생성하기
+</button>
+
+<!-- Step 1: 참여자 선택 모달 -->
+<div class="modal fade" id="createRoomStep1" tabindex="-1" role="dialog" aria-labelledby="step1Label" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="step1Label">대화상대 선택</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="닫기">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- 검색창 -->
+        <div class="input-group mb-3">
+          <input type="text" class="form-control" id="searchUserInput" placeholder="이름 검색">
+          <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="button">검색</button>
+          </div>
+        </div>
+
+        <!-- 사원 목록 (스크롤 가능) -->
+        <ul class="list-group" id="participantList" style="max-height: 300px; overflow-y: auto;">
+          <c:forEach items="${employeeList}" var="employee">
+            <li class="list-group-item d-flex align-items-center">
+              <img src="/images/default_profile.jpg" class="rounded-circle mr-3" style="width:40px; height:40px;">
+              <div class="flex-fill">
+                <strong>${employee.name}</strong><br>
+                <small>${employee.departmentName} ${employee.positionName}</small>
+              </div>
+              <input type="checkbox" value="${employee.username}" class="participant-checkbox">
+            </li>
+          </c:forEach>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+        <button type="button" class="btn btn-primary" id="nextStepBtn">다음</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Step 2: 방 제목 입력 모달 -->
+<div class="modal fade" id="createRoomStep2" tabindex="-1" role="dialog" aria-labelledby="step2Label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="step2Label">채팅방 제목 설정</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="닫기">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <label for="roomTitle">채팅방 제목</label>
+        <input type="text" id="roomTitle" class="form-control" placeholder="채팅방 이름 입력">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+        <button type="button" class="btn btn-success" id="createRoomConfirmBtn">생성</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
 				
 				<script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
   			    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>

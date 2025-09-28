@@ -60,38 +60,38 @@ public class ChatRoomController {
 		Long roomId =chatRoomService.createRoom(roomdata, principal);
 		RoomData chatRoom = new RoomData();
 		chatRoom.setChatRoomId(roomId);
-		chatRoom.setNotificationType("room");
-		//1대1 채팅일경우 채팅방 이름을 상대 이름으로 설정
-		if(roomdata.getChatRoomTitle()==null) {
-			//부서 직위 이름 꺼내오기
-			Map<String, Object> map;
-			map =employeeService.detail(principal.getName());
-			Employee emp = (Employee)map.get("employee");
-			Department department = (Department)map.get("department");
-			Position position = (Position)map.get("position");
-			String roomtitle = department.getDepartmentName()+" "+position.getPositionName()+" "+emp.getName();
-			
-			chatRoom.setChatRoomTitle(roomtitle);
-			chatRoom.setUnreadCount(0L);
-
-		}
-		
-		//상대방 구독 알림 보냄
-		for(int i = 0; i <roomdata.getUsernames().size();i++) {
-			simpMessagingTemplate.convertAndSendToUser(roomdata.getUsernames().get(i),"/queue/notifications" , chatRoom);
-		}
-		
-		//본인한테 구독 알림 보냄
-		if(roomdata.getUsernames().size()==1) {
-			Map<String, Object> map;
-			map =employeeService.detail(roomdata.getUsernames().getFirst());
-			Employee emp = (Employee)map.get("employee");
-			Department department = (Department)map.get("department");
-			Position position = (Position)map.get("position");
-			String roomtitle = department.getDepartmentName()+" "+position.getPositionName()+" "+emp.getName();
-			chatRoom.setChatRoomTitle(roomtitle);
-			simpMessagingTemplate.convertAndSendToUser(principal.getName(),"/queue/notifications" , chatRoom);
-		}
+//		chatRoom.setNotificationType("room");
+//		//1대1 채팅일경우 채팅방 이름을 상대 이름으로 설정
+//		if(roomdata.getChatRoomTitle()==null) {
+//			//부서 직위 이름 꺼내오기
+//			Map<String, Object> map;
+//			map =employeeService.detail(principal.getName());
+//			Employee emp = (Employee)map.get("employee");
+//			Department department = (Department)map.get("department");
+//			Position position = (Position)map.get("position");
+//			String roomtitle = department.getDepartmentName()+" "+position.getPositionName()+" "+emp.getName();
+//			
+//			chatRoom.setChatRoomTitle(roomtitle);
+//			chatRoom.setUnreadCount(0L);
+//
+//		}
+//		
+//		//상대방 구독 알림 보냄
+//		for(int i = 0; i <roomdata.getUsernames().size();i++) {
+//			simpMessagingTemplate.convertAndSendToUser(roomdata.getUsernames().get(i),"/queue/notifications" , chatRoom);
+//		}
+//		
+//		//본인한테 구독 알림 보냄
+//		if(roomdata.getUsernames().size()==1) {
+//			Map<String, Object> map;
+//			map =employeeService.detail(roomdata.getUsernames().getFirst());
+//			Employee emp = (Employee)map.get("employee");
+//			Department department = (Department)map.get("department");
+//			Position position = (Position)map.get("position");
+//			String roomtitle = department.getDepartmentName()+" "+position.getPositionName()+" "+emp.getName();
+//			chatRoom.setChatRoomTitle(roomtitle);
+//			simpMessagingTemplate.convertAndSendToUser(principal.getName(),"/queue/notifications" , chatRoom);
+//		}
 
 		return chatRoom;
 	}

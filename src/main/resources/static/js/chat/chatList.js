@@ -13,7 +13,7 @@ function createLi(chatRoom) {
 	//li
 	const newli = document.createElement("li");
 
-	newli.className = "mb-4 px-5 py-2 chatListOne";
+	newli.className = "mb-4 px-5 py-2 chatListOne list-group-item-action";
 	newli.setAttribute("data-roomId", chatRoom.chatRoomId);
 	newli.setAttribute("data-unreadCount", 0);
 	newli.addEventListener("dblclick", (e) => {
@@ -182,6 +182,7 @@ stompClient.connect({}, function(frame) {
 					//중복임을 flag로 저장
 					existing = true;
 					if (notification.notificationType == "room") {
+						
 
 					}
 					if (notification.notificationType == "message") {
@@ -299,49 +300,44 @@ document.querySelector(".chatList").addEventListener("click", (e) => {
   }
 });
 
-//그룹 채팅 생성 모달 
-const modal = document.getElementById("createRoomModal");
-const btn = document.getElementById("createRoomBtn");
-const span = document.querySelector(".close");
+let selectedParticipants = [];
 
-// 열기
-btn.onclick = function() {
-	modal.style.display = "block";
-};
+// Step1 → Step2 이동
+document.getElementById("nextStepBtn").addEventListener("click", () => {
+  selectedParticipants = Array.from(document.querySelectorAll(".participant-checkbox:checked"))
+                              .map(cb => cb.value);
+  if (selectedParticipants.length === 0) {
+    alert("참여자를 최소 1명 이상 선택하세요.");
+    return;
+  }
 
-// 닫기
-span.onclick = function() {
-	modal.style.display = "none";
-};
+  // Step1 닫고 Step2 열기
+  $("#createRoomStep1").modal("hide");
+  $("#createRoomStep2").modal("show");
+});
 
-// 바깥 클릭 시 닫기
-window.onclick = function(event) {
-	if (event.target == modal) {
-		modal.style.display = "none";
-	}
-};
-
-
-// 생성버튼 
+// 최종 생성
 document.getElementById("createRoomConfirmBtn").addEventListener("click", () => {
-	const roomTitle = document.getElementById("roomTitle").value;
-	const selected = Array.from(document.querySelectorAll("#participantList input:checked"))
-		.map(cb => cb.value);
+  const roomTitle = document.getElementById("roomTitle").value;
+  if (!roomTitle.trim()) {
+    alert("방 제목을 입력하세요.");
+    return;
+  }
 
-	const payload = {
-		roomTitle: roomTitle,
-		participants: selected
-	};
+  const payload = {
+    roomTitle: roomTitle,
+    participants: selectedParticipants
+  };
 
-	fetch("/chat/room/createRoom", {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify(payload)
-	})
-		.then(res => res.json())
-		.then(chatRoom => {
-			// 목록에 새 방 추가
-			console.log("방 생성됨:", chatRoom);
-			modal.style.display = "none";
-		});
+  fetch("/chat/room/createRoom", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  })
+    .then(res => res.json())
+    .then(chatRoom => {
+      console.log("방 생성됨:", chatRoom);
+      $("#createRoomStep2").modal("hide");
+      // TODO: 생성된 방 목록에 추가하는 로직 넣기
+    });
 });

@@ -43,6 +43,9 @@ public interface ChatParticipantRepository extends JpaRepository<ChatParticipant
 		@Query("UPDATE ChatParticipant c SET useYn = false "+
 				   "WHERE c.employeeUsername = :username AND c.chatRoomId =:roomId")
 			void updateRoomUseYnFalse(@Param("username") String username, @Param("roomId") Long roomId);
+		
+		
+		boolean existsByChatRoomIdAndEmployeeUsername(Long chatRoomId, String employeeUsername);
 	
 	
 }
